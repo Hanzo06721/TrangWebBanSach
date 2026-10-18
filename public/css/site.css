@@ -1,0 +1,41 @@
+:root {
+  --ink: #16231f;
+  --forest: #1d5a47;
+  --forest-dark: #154436;
+  --mist: #eef2ef;
+  --line: #d8e0db;
+  --bs-body-font-family: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --bs-primary: #1d5a47;
+  --bs-primary-rgb: 29, 90, 71;
+  --bs-link-color: #1d5a47;
+  --bs-link-hover-color: #154436;
+}
+body { background: var(--mist); color: var(--ink); }
+.site-nav { background: var(--ink); }
+.site-nav .navbar-brand { font-weight: 700; letter-spacing: .2px; }
+.btn-primary {
+  --bs-btn-bg: #1d5a47; --bs-btn-border-color: #1d5a47;
+  --bs-btn-hover-bg: #154436; --bs-btn-hover-border-color: #154436;
+  --bs-btn-active-bg: #154436; --bs-btn-active-border-color: #154436;
+  --bs-btn-disabled-bg: #1d5a47; --bs-btn-disabled-border-color: #1d5a47;
+}
+.btn-outline-primary {
+  --bs-btn-color: #1d5a47; --bs-btn-border-color: #1d5a47;
+  --bs-btn-hover-bg: #1d5a47; --bs-btn-hover-border-color: #1d5a47;
+  --bs-btn-active-bg: #154436; --bs-btn-active-border-color: #154436;
+}
+.card { border: 1px solid var(--line); border-radius: .5rem; box-shadow: none; }
+.auth-wrap { max-width: 440px; margin: 2.5rem auto; }
+.page-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1.25rem; }
+.avatar {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%; background: var(--forest); color: #fff;
+  font-weight: 600; object-fit: cover; flex-shrink: 0;
+}
+.info-list dt { font-weight: 500; color: #5b6b66; }
+.info-list dd { margin-bottom: .75rem; }
+.table > :not(caption) > * > * { vertical-align: middle; }
+.hero { padding: 3.5rem 0 2.5rem; }
+.hero h1 { font-weight: 700; font-size: clamp(1.8rem, 4vw, 2.75rem); max-width: 18ch; }
+:focus-visible { outline: 3px solid #e0b24a; outline-offset: 2px; }
+@media (max-width: 575.98px) { .auth-wrap { margin: 1.25rem auto; } }
