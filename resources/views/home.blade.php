@@ -2,20 +2,35 @@
 @section('title', 'Trang chủ')
 
 @section('content')
-<section class="hero">
-    <h1>Sách đã đọc xong, trao lại cho người cần đọc.</h1>
-    <p class="lead mt-3 mb-4" style="max-width: 52ch;">
-        Mua bán, trao đổi, ký gửi và quyên góp sách trực tuyến.
-    </p>
-    @guest
-        <a href="{{ route('register') }}" class="btn btn-primary btn-lg me-2">Tạo tài khoản</a>
-        <a href="{{ route('login') }}" class="btn btn-outline-primary btn-lg">Đăng nhập</a>
-    @else
-        <p class="mb-3">Xin chào <strong>{{ auth()->user()->FullName }}</strong>.</p>
-        <a href="{{ route('profile.show') }}" class="btn btn-primary">Xem hồ sơ cá nhân</a>
-        @if(auth()->user()->isAdmin())
-            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-primary">Quản lý người dùng</a>
-        @endif
-    @endguest
+<section class="home-hero">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-7">
+            <span class="home-eyebrow">Thị trường sách cộng đồng</span>
+            <h1>Tìm cuốn sách tiếp theo cho hành trình của bạn.</h1>
+            <p class="home-lead">Mua sách chất lượng, trao đổi tri thức hoặc gửi lại cuốn sách còn hay cho người cần đọc.</p>
+            <form class="home-search" method="GET" action="{{ route('posts.index') }}">
+                <input class="form-control" name="q" value="" placeholder="Tìm tên sách, tác giả hoặc tiêu đề..." aria-label="Tìm kiếm sách">
+                <button class="btn btn-primary px-4" type="submit">Tìm kiếm</button>
+            </form>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <a class="btn btn-light btn-sm" href="{{ route('posts.index', ['post_type' => 'Bán']) }}">Mua sách</a>
+                <a class="btn btn-outline-light btn-sm" href="{{ route('posts.index', ['post_type' => 'Trao đổi']) }}">Trao đổi</a>
+                <a class="btn btn-outline-light btn-sm" href="{{ route('posts.index', ['post_type' => 'Quyên góp']) }}">Quyên góp</a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="home-book-stage" aria-hidden="true">
+                <div class="home-book-card home-book-main">
+                    <span>Mua</span><strong>Bán</strong>
+                </div>
+                <div class="home-book-card home-book-side">
+                    <span>Trao</span><strong>Đổi</strong>
+                </div>
+                <div class="home-book-card home-book-small">
+                    <span>Chia</span><strong>Sẻ</strong>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 @endsection

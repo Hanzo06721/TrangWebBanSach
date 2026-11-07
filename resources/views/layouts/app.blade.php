@@ -12,7 +12,7 @@
     <link href="{{ asset('css/site.css') }}" rel="stylesheet">
 </head>
 <body>
-<nav class="navbar navbar-expand-md navbar-dark site-nav">
+<nav class="navbar navbar-expand-md navbar-dark site-nav sticky-top">
     <div class="container">
         <a class="navbar-brand" href="{{ route('home') }}">Trao Đổi Sách</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
@@ -29,9 +29,20 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">Quản lý người dùng</a></li>
                                 <li><a class="dropdown-item" href="{{ route('admin.roles.index') }}">Quản lý quyền</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.posts.index') }}">Kiểm duyệt bài đăng</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.post-reports.index') }}">Báo cáo bài đăng</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.comments.index') }}">Kiểm duyệt bình luận</a></li>
                             </ul>
                         </li>
+                    @else
+                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.index') }}">Bài đăng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.forum') }}">Diễn đàn</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.create') }}">Đăng bài</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.mine') }}">Bài của tôi</a></li>
                     @endif
+                @else
+                    <li class="nav-item"><a class="nav-link" href="{{ route('posts.index') }}">Bài đăng</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('posts.forum') }}">Diễn đàn</a></li>
                 @endauth
             </ul>
             <ul class="navbar-nav align-items-md-center">
@@ -68,7 +79,32 @@
     @yield('content')
 </main>
 
-<footer class="container pb-4 text-muted small">Website mua bán và trao đổi sách trực tuyến</footer>
+<footer class="site-footer">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <strong>Trao Đổi Sách</strong>
+                <div class="small">Mua bán, trao đổi và chia sẻ sách trong cộng đồng.</div>
+            </div>
+            <div class="d-flex flex-wrap gap-3 small">
+                @guest
+                    <a href="{{ route('posts.index') }}">Bài đăng</a>
+                    <a href="{{ route('posts.forum') }}">Diễn đàn</a>
+                    <a href="{{ route('login') }}">Đăng nhập</a>
+                @else
+                    @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.users.index') }}">Người dùng</a>
+                        <a href="{{ route('admin.posts.index') }}">Kiểm duyệt</a>
+                    @else
+                        <a href="{{ route('posts.index') }}">Bài đăng</a>
+                        <a href="{{ route('posts.forum') }}">Diễn đàn</a>
+                        <a href="{{ route('posts.mine') }}">Bài của tôi</a>
+                    @endif
+                @endguest
+            </div>
+        </div>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
