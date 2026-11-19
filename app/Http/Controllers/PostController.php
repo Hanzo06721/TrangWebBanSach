@@ -27,6 +27,16 @@ class PostController extends Controller
                 'comments' => fn ($comments) => $comments->where('Status', 'Hiển thị')->with(['user', 'replies.user', 'reactions']),
             ])
             ->where('PostStatus', 'Đã duyệt')
+            ->when($request->filled('post_type'), fn ($query) => $query->where('PostType', $request->post_type))
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $q = $request->string('q')->toString();
+                $query->where(function ($query) use ($q) {
+                    $query->where('Title', 'like', "%{$q}%")
+                        ->orWhere('Description', 'like', "%{$q}%")
+                        ->orWhereHas('books', fn ($book) => $book->where('Title', 'like', "%{$q}%")
+                            ->orWhere('AuthorName', 'like', "%{$q}%"));
+                });
+            })
             ->latest('CreatedAt')
             ->paginate(10)
             ->withQueryString();

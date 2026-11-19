@@ -29,4 +29,17 @@ class Book extends Model
     {
         return $this->hasMany(Post::class, 'BookID', 'BookID');
     }
+
+    public function getCoverUrlAttribute(): string
+    {
+        if ($this->CoverImage) {
+            if (file_exists(public_path('images/books/' . $this->CoverImage))) {
+                return asset('images/books/' . $this->CoverImage);
+            }
+            if (file_exists(public_path('storage/' . $this->CoverImage))) {
+                return asset('storage/' . $this->CoverImage);
+            }
+        }
+        return asset('images/book-placeholder.svg');
+    }
 }
