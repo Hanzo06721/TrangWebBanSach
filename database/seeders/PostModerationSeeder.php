@@ -13,12 +13,23 @@ class PostModerationSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('postmoderation')->insert([
-            ['ModerationID' => 'MD001', 'PostID' => 'P001', 'AdminID' => 'U001', 'Status' => 'Approved', 'Reason' => null],
-            ['ModerationID' => 'MD002', 'PostID' => 'P002', 'AdminID' => 'U001', 'Status' => 'Approved', 'Reason' => null],
-            ['ModerationID' => 'MD003', 'PostID' => 'P003', 'AdminID' => 'U001', 'Status' => 'Approved', 'Reason' => null],
-            ['ModerationID' => 'MD004', 'PostID' => 'P004', 'AdminID' => 'U001', 'Status' => 'Approved', 'Reason' => null],
-            ['ModerationID' => 'MD005', 'PostID' => 'P005', 'AdminID' => 'U001', 'Status' => 'Approved', 'Reason' => null],
-        ]);
+        $records = [];
+        for ($i = 1; $i <= 25; $i++) {
+            $num = str_pad($i, 3, '0', STR_PAD_LEFT);
+            $records[] = [
+                'ModerationID' => 'MD' . $num,
+                'PostID' => 'P' . $num,
+                'AdminID' => 'U001',
+                'Status' => 'Approved',
+                'Reason' => null,
+            ];
+        }
+
+        foreach ($records as $record) {
+            DB::table('postmoderation')->updateOrInsert(
+                ['ModerationID' => $record['ModerationID']],
+                $record
+            );
+        }
     }
 }

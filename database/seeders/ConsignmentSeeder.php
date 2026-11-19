@@ -13,16 +13,59 @@ class ConsignmentSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('consignments')->insert([
+        $consignments = [
             [
                 'ConsignmentID' => 'CS001',
                 'UserID' => 'U005',
                 'PostID' => 'P004',
                 'ContactInfo' => '0901000005',
-                'Description' => 'Nho website ho tro ban sach English Grammar in Use',
+                'Description' => 'Nhờ website hỗ trợ bán sách English Grammar in Use',
                 'ConsignmentStatus' => 'Completed',
                 'CreatedAt' => '2026-09-18 08:30:00',
             ],
-        ]);
+            [
+                'ConsignmentID' => 'CS002',
+                'UserID' => 'U002',
+                'PostID' => 'P009',
+                'ContactInfo' => '0901000002',
+                'Description' => 'Ký gửi sách Nhập môn trí tuệ nhân tạo',
+                'ConsignmentStatus' => 'Completed',
+                'CreatedAt' => '2026-09-23 09:00:00',
+            ],
+            [
+                'ConsignmentID' => 'CS003',
+                'UserID' => 'U003',
+                'PostID' => 'P014',
+                'ContactInfo' => '0901000003',
+                'Description' => 'Ký gửi sách Vợ nhặt',
+                'ConsignmentStatus' => 'Completed',
+                'CreatedAt' => '2026-09-28 16:10:00',
+            ],
+            [
+                'ConsignmentID' => 'CS004',
+                'UserID' => 'U004',
+                'PostID' => 'P019',
+                'ContactInfo' => '0901000004',
+                'Description' => 'Ký gửi sách English Vocabulary in Use',
+                'ConsignmentStatus' => 'Completed',
+                'CreatedAt' => '2026-10-03 14:00:00',
+            ],
+            [
+                'ConsignmentID' => 'CS005',
+                'UserID' => 'U005',
+                'PostID' => 'P024',
+                'ContactInfo' => '0901000005',
+                'Description' => 'Ký gửi sách 7 Thói quen hiệu quả',
+                'ConsignmentStatus' => 'Completed',
+                'CreatedAt' => '2026-10-08 14:20:00',
+            ],
+        ];
+
+        foreach ($consignments as $cs) {
+            DB::table('consignments')->updateOrInsert(
+                ['ConsignmentID' => $cs['ConsignmentID']],
+                $cs
+            );
+        }
     }
 }
