@@ -186,9 +186,52 @@
 </div>
 
 <!-- ========================================================
-     4. LƯỚI THẺ SÁCH 3D (BOOK CARDS GRID)
+     4. LƯỚI THẺ SÁCH 3D (BOOK CARDS GRID) & HIỆU ỨNG LẬT SÁCH
      ======================================================== -->
-<div class="row g-4" id="postResults">
+<div class="book-page-flip-stage position-relative my-3" id="bookPageStage">
+    <!-- Màng bóng gáy sách khi đang lật -->
+    <div class="page-flip-curl-overlay" id="pageCurlOverlay"></div>
+
+    {{-- Mũi tên lật sách nổi 2 bên mép (Desktop Floating Turners) --}}
+    @if($posts->previousPageUrl())
+        <a href="{{ $posts->previousPageUrl() }}" 
+           class="floating-page-turner turner-left" 
+           id="floatingPrev" 
+           data-flip="prev" 
+           title="Lật về trang trước"
+           aria-label="Lật trang trước">
+            <span>⮜</span>
+        </a>
+    @else
+        <button type="button" 
+                class="floating-page-turner turner-left disabled" 
+                id="floatingPrev" 
+                disabled 
+                title="Đang ở trang đầu tiên">
+            <span>⮜</span>
+        </button>
+    @endif
+
+    @if($posts->nextPageUrl())
+        <a href="{{ $posts->nextPageUrl() }}" 
+           class="floating-page-turner turner-right" 
+           id="floatingNext" 
+           data-flip="next" 
+           title="Lật sang trang sau"
+           aria-label="Lật trang sau">
+            <span>⮞</span>
+        </a>
+    @else
+        <button type="button" 
+                class="floating-page-turner turner-right disabled" 
+                id="floatingNext" 
+                disabled 
+                title="Đã đến trang cuối cùng">
+            <span>⮞</span>
+        </button>
+    @endif
+
+    <div class="row g-4" id="postResults">
 @forelse($posts as $post)
     @php
         $primaryImg = $post->images->where('IsPrimary', true)->first() ?? $post->images->first();
@@ -334,31 +377,135 @@
         </div>
     </div>
 @endforelse
+    </div>
 </div>
 
 <!-- ========================================================
-     5. PHÂN TRANG (PAGINATION)
+     5. PHÂN TRANG DẠNG LẬT SÁCH (BOOK FLIP PAGINATION)
      ======================================================== -->
-<div class="d-flex justify-content-center mt-4 mb-5">
+<div class="d-flex justify-content-center" id="paginationContainer">
     {{ $posts->links() }}
 </div>
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const cards = document.querySelectorAll('.book-post-card');
-    cards.forEach(card => {
-        card.addEventListener('mousemove', e => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
-            const tiltX = (y / rect.height) * -6;
-            const tiltY = (x / rect.width) * 6;
-            card.style.transform = `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-8px)`;
+    const bookStage = document.getElementById('bookPageStage');
+    const postResults = document.getElementById('postResults');
+    const paginationContainer = document.getElementById('paginationContainer');
+
+    // 1. Áp dụng hiệu ứng 3D nghiêng nhẹ theo chuột cho từng thẻ sách
+    const initCardTilt = () => {
+        const cards = document.querySelectorAll('.book-post-card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                const tiltX = (y / rect.height) * -6;
+                const tiltY = (x / rect.width) * 6;
+                card.style.transform = `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-8px)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
         });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-        });
+    };
+
+    initCardTilt();
+
+    // 2. Xử lý LẬT TRANG SÁCH 3D (Smooth Book Page-Flip Navigation)
+    let isFlipping = false;
+
+    const flipToPage = async (url, direction = 'next') => {
+        if (!url || isFlipping) return;
+        isFlipping = true;
+
+        bookStage.classList.add('is-flipping');
+        const grid = document.getElementById('postResults');
+
+        // Bắt đầu hiệu ứng lật trang cũ đi (flip-out)
+        const outClass = direction === 'next' ? 'page-flipping-out-left' : 'page-flipping-out-right';
+        const inClass = direction === 'next' ? 'page-flipping-in-right' : 'page-flipping-in-left';
+
+        grid.classList.remove('page-flipping-in-right', 'page-flipping-in-left');
+        grid.classList.add(outClass);
+
+        try {
+            const response = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (!response.ok) {
+                window.location.href = url;
+                return;
+            }
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const newGrid = doc.getElementById('postResults');
+            const newPagination = doc.getElementById('paginationContainer');
+            const newFloatingPrev = doc.getElementById('floatingPrev');
+            const newFloatingNext = doc.getElementById('floatingNext');
+
+            // Đợi nửa chu kỳ lật sách (trang đang quay nghiêng mép sách)
+            setTimeout(() => {
+                if (newGrid && grid) {
+                    grid.innerHTML = newGrid.innerHTML;
+                }
+
+                if (newPagination && paginationContainer) {
+                    paginationContainer.innerHTML = newPagination.innerHTML;
+                }
+
+                // Cập nhật nút mũi tên lật sách 2 bên mép
+                const curPrev = document.getElementById('floatingPrev');
+                const curNext = document.getElementById('floatingNext');
+                if (curPrev && newFloatingPrev) curPrev.replaceWith(newFloatingPrev);
+                if (curNext && newFloatingNext) curNext.replaceWith(newFloatingNext);
+
+                // Chuyển sang hiệu ứng mở trang sách mới vào (flip-in)
+                grid.classList.remove(outClass);
+                grid.classList.add(inClass);
+
+                // Cập nhật URL trình duyệt
+                window.history.pushState(null, '', url);
+
+                // Khởi tạo lại hiệu ứng rê chuột cho thẻ mới
+                initCardTilt();
+
+                // Cuộn mượt mà về đầu danh mục sách
+                const stageTop = bookStage.getBoundingClientRect().top + window.scrollY - 80;
+                window.scrollTo({ top: stageTop, behavior: 'smooth' });
+
+                setTimeout(() => {
+                    grid.classList.remove(inClass);
+                    bookStage.classList.remove('is-flipping');
+                    isFlipping = false;
+                }, 480);
+            }, 300);
+
+        } catch (err) {
+            window.location.href = url;
+        }
+    };
+
+    // Bắt sự kiện click vào các nút lật trang
+    document.addEventListener('click', e => {
+        // Nút phân trang (Trang trước, Trang sau, Số trang)
+        const pageLink = e.target.closest('.book-flip-btn:not(.disabled), .book-page-item:not(.active):not(.disabled), .floating-page-turner:not(.disabled)');
+        if (pageLink && pageLink.href) {
+            e.preventDefault();
+            const direction = pageLink.dataset.flip || 'next';
+            flipToPage(pageLink.href, direction);
+        }
+    });
+
+    // Hỗ trợ nút Back / Forward trên trình duyệt
+    window.addEventListener('popstate', () => {
+        flipToPage(window.location.href, 'prev');
     });
 });
 </script>
