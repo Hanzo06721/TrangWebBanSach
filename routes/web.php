@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\BookController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PostModerationController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
@@ -69,6 +71,11 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
         Route::patch('/roles/users/{user}', [RoleController::class, 'assign'])->name('roles.assign');
+
+        Route::get('/books/export', [BookController::class, 'export'])->name('books.export');
+        Route::post('/books/import', [BookController::class, 'import'])->name('books.import');
+        Route::resource('books', BookController::class);
+        Route::resource('categories', CategoryController::class);
 
         Route::get('/posts', [PostModerationController::class, 'index'])->name('posts.index');
         Route::patch('/posts/{post}/approve', [PostModerationController::class, 'approve'])->name('posts.approve');

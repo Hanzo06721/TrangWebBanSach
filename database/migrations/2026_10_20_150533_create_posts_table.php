@@ -20,8 +20,9 @@ return new class extends Migration
             $table->enum('PostType', ['Bán', 'Trao đổi', 'Ký gửi', 'Quyên góp'])->nullable();
             $table->enum('Condition',['Mới', 'Như mới', 'Tốt', 'Ổn', 'Cũ']);
             $table->string('Description', 500)->nullable();
-            $table->enum('PostStatus', ['Chờ duyệt', 'Đã duyệt', 'Bị từ chối'])->default('Chờ duyệt');
-
+            $table->enum('PostStatus', ['Chờ duyệt', 'Đã duyệt', 'Bị từ chối', 'Đã ẩn'])->default('Chờ duyệt');
+            $table->dateTime('CreatedAt')->nullable()->useCurrent();
+            $table->dateTime('UpdatedAt')->nullable()->useCurrent();
 
             $table->foreign('BookID', 'FK_POST_BOOK')->references('BookID')->on('books');
             $table->foreign('UserID', 'FK_POST_USER')->references('UserID')->on('users');

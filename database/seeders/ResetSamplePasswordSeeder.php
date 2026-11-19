@@ -16,7 +16,7 @@ class ResetSamplePasswordSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('Users')->update(['PasswordHash' => Hash::make('123456')]);
+        DB::table('users')->update(['PasswordHash' => Hash::make('123456')]);
 
         $this->command?->info('Đã đặt mật khẩu 123456 cho toàn bộ tài khoản mẫu.');
     }

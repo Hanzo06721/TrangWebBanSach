@@ -6,7 +6,7 @@
 
 <div class="mb-3">
     <label class="form-label">Tựa đề sách</label>
-    <input class="form-control" type="text" name="Title" value="{{ old('Title', $book->BookName ?? '') }}"
+    <input class="form-control" type="text" name="Title" value="{{ old('Title', $book->Title ?? '') }}"
     required>
 </div>
 
@@ -28,13 +28,11 @@
 
 <div class="mb-3">
     <label class="form-label">Mô tả</label>
-    <textarea name="Description" class="form-control" rows="3">
-        {{ old('Description', $book->Description??'') }}
-    </textarea>
+    <textarea name="Description" class="form-control" rows="3">{{ old('Description', $book->Description ?? '') }}</textarea>
 </div>
 
 <div class="mb-3">
-    <label class="form-label">Đường truyền ảnh bìa</label>
+    <label class="form-label">Đường dẫn ảnh bìa</label>
     <input class="form-control" type="text" name="CoverImage" value="{{ old('CoverImage', $book->CoverImage ?? '') }}">
 </div>
 
@@ -43,7 +41,7 @@
     <select name="CategoryID" class="form-select" required>
         <option value="">-- Chọn danh mục --</option>
         @foreach($categories as $category)
-            <option value="{{ $category->CategoryID }}" {{old('CategoryID') === $category->CategoryID ? 'selected': ''}}>
+            <option value="{{ $category->CategoryID }}" {{ old('CategoryID', $book->CategoryID ?? '') == $category->CategoryID ? 'selected' : '' }}>
                 {{ $category->CategoryName }}
             </option>
         @endforeach

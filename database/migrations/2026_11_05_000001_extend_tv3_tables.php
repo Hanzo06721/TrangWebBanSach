@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            $table->dateTime('CreatedAt')->nullable()->useCurrent()->after('PostStatus');
-            $table->dateTime('UpdatedAt')->nullable()->useCurrent()->after('CreatedAt');
+            if (! Schema::hasColumn('posts', 'CreatedAt')) {
+                $table->dateTime('CreatedAt')->nullable()->useCurrent()->after('PostStatus');
+            }
+            if (! Schema::hasColumn('posts', 'UpdatedAt')) {
+                $table->dateTime('UpdatedAt')->nullable()->useCurrent()->after('CreatedAt');
+            }
         });
 
         Schema::create('post_images', function (Blueprint $table) {

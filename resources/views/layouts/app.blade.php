@@ -27,11 +27,15 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Quản trị</a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">Quản lý người dùng</a></li>
-                                <li><a class="dropdown-item" href="{{ route('admin.roles.index') }}">Quản lý quyền</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.categories.index') }}">Quản lý danh mục</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.books.index') }}">Quản lý sách</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{{ route('admin.posts.index') }}">Kiểm duyệt bài đăng</a></li>
                                 <li><a class="dropdown-item" href="{{ route('admin.post-reports.index') }}">Báo cáo bài đăng</a></li>
                                 <li><a class="dropdown-item" href="{{ route('admin.comments.index') }}">Kiểm duyệt bình luận</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">Quản lý người dùng</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.roles.index') }}">Quản lý quyền</a></li>
                             </ul>
                         </li>
                     @else

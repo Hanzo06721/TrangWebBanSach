@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('ModerationID', 10)->primary();
             $table->string('PostID', 10);
             $table->string('AdminID', 10);
-            $table->enum('Status', ['Approved','Rejected',]);
+            $table->enum('Status', ['Approved', 'Rejected', 'Hidden']);
             $table->string('Reason', 500)->nullable();
             $table->dateTime('CreatedAt')->useCurrent();
 

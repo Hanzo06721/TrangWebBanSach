@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\Consignment;
+use App\Models\Donation;
 use App\Models\Post;
 use App\Models\PostImage;
 use App\Models\Transaction;
@@ -105,6 +107,25 @@ class PostController extends Controller
         ]);
 
         $this->storeImages($request, $post);
+
+        if ($post->PostType === 'Ký gửi' && Schema::hasTable('consignments')) {
+            Consignment::create([
+                'ConsignmentID' => Consignment::generateId(),
+                'UserID' => $post->UserID,
+                'PostID' => $post->PostID,
+                'ContactInfo' => $request->user()->Phone,
+                'Description' => $post->Description,
+                'ConsignmentStatus' => 'Pending',
+            ]);
+        } elseif ($post->PostType === 'Quyên góp' && Schema::hasTable('donations')) {
+            Donation::create([
+                'DonationID' => Donation::generateId(),
+                'UserID' => $post->UserID,
+                'PostID' => $post->PostID,
+                'ContactInfo' => $request->user()->Phone,
+                'DonationStatus' => 'Pending',
+            ]);
+        }
 
         return redirect()->route('posts.mine')->with('success', 'Bài đăng đã được gửi và đang chờ kiểm duyệt.');
     }

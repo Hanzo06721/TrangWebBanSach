@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Role extends Model
 {
-    protected $table = 'Roles';
+    protected $table = 'roles';
     protected $primaryKey = 'RoleID';
     public $incrementing = false;
     protected $keyType = 'string';

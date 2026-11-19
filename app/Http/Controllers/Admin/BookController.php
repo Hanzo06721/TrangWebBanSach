@@ -138,16 +138,28 @@ class BookController extends Controller
     public function destroy(string $id)
     {
         $book = Book::findOrFail($id);
+        if ($book->post()->exists()) {
+            return redirect()->route('admin.books.index')->with('error', 'Không thể xóa sách đã có bài đăng liên kết!');
+        }
         $book->delete();
         return redirect()->route('admin.books.index')->with('success','Xoá sách thành công!');
     }
 
     public function export()
     {
+        if (! class_exists(Excel::class)) {
+            return redirect()->route('admin.books.index')->with('error', 'Chưa cài đặt thư viện Maatwebsite\\Excel. Vui lòng chạy lệnh: composer require maatwebsite/excel');
+        }
+
         return Excel::download(new BooksExport, 'danh_sach_sach.xlsx');
     }
+
     public function import(Request $request)
     {
+        if (! class_exists(Excel::class)) {
+            return redirect()->route('admin.books.index')->with('error', 'Chưa cài đặt thư viện Maatwebsite\\Excel. Vui lòng chạy lệnh: composer require maatwebsite/excel');
+        }
+
         $request->validate([
             'file'=>'required|file|mimes:xlsx,xls,csv|max:5120',
         ]);

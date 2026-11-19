@@ -24,4 +24,13 @@ class Donation extends Model
     {
         return $this->belongsTo(Post::class, 'PostID', 'PostID');
     }
+
+    public static function generateId(): string
+    {
+        $max = static::query()
+            ->selectRaw('MAX(CAST(SUBSTRING(DonationID, 2) AS UNSIGNED)) AS m')
+            ->value('m');
+
+        return 'D'.str_pad((string) ((int) $max + 1), 3, '0', STR_PAD_LEFT);
+    }
 }

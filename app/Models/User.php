@@ -12,7 +12,7 @@ class User extends Authenticatable
     const CREATED_AT = 'CreatedAt';
     const UPDATED_AT = null;
 
-    protected $table = 'Users';
+    protected $table = 'users';
     protected $primaryKey = 'UserID';
     public $incrementing = false;       // khóa chính dạng chuỗi: U001, U002...
     protected $keyType = 'string';
