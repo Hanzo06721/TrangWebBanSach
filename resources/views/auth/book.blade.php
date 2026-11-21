@@ -1,11 +1,13 @@
 @php
-    $currentRoute = request()->routeIs('register') ? 'register' : 'login';
+    $currentRoute = request()->routeIs('register') ? 'register' : (request()->routeIs('password.request') ? 'forgot' : 'login');
     $activeMode = old('_mode', $initialMode ?? $currentRoute);
     if ($errors->has('FullName') || $errors->has('Phone') || $errors->has('password_confirmation')) {
         $activeMode = 'register';
+    } elseif (request()->routeIs('password.request') || session('_mode') === 'forgot' || ($errors->has('Email') && old('_mode') === 'forgot')) {
+        $activeMode = 'forgot';
     }
     // Nếu có lỗi validation hoặc session thông báo, tự động mở sẵn cuốn sách
-    $isOpen = $errors->any() || session('status') || session('error');
+    $isOpen = $errors->any() || session('status') || session('error') || session('success');
 @endphp
 
 @push('styles')
@@ -52,12 +54,22 @@
 
                 <div>
                     <h2 class="left-page-title" id="leftTitle">
-                        {{ $activeMode === 'register' ? 'Gia Nhập Cùng Chúng Tôi' : 'Chào Mừng Trở Lại!' }}
+                        @if($activeMode === 'register')
+                            Gia Nhập Cùng Chúng Tôi
+                        @elseif($activeMode === 'forgot')
+                            Khôi Phục Mật Khẩu
+                        @else
+                            Chào Mừng Trở Lại!
+                        @endif
                     </h2>
                     <p class="left-page-desc" id="leftDesc">
-                        {{ $activeMode === 'register'
-                            ? 'Mở tài khoản để đăng bán, trao đổi sách cũ hoặc tìm kiếm những tựa sách yêu thích giá rẻ.'
-                            : 'Đăng nhập vào tài khoản của bạn để quản lý bài đăng, kết nối và trao đổi sách cùng mọi người.' }}
+                        @if($activeMode === 'register')
+                            Mở tài khoản để đăng bán, trao đổi sách cũ hoặc tìm kiếm những tựa sách yêu thích giá rẻ.
+                        @elseif($activeMode === 'forgot')
+                            Đừng lo lắng, hãy nhập email tài khoản của bạn để nhận liên kết thiết lập lại mật khẩu mới an toàn.
+                        @else
+                            Đăng nhập vào tài khoản của bạn để quản lý bài đăng, kết nối và trao đổi sách cùng mọi người.
+                        @endif
                     </p>
 
                     <div class="book-quote-card">
@@ -93,7 +105,7 @@
             <!-- RÃNH GÁY SÁCH Ở GIỮA -->
             <div class="book-gutter-shadow"></div>
 
-            <!-- TRANG PHẢI (Form Đăng nhập hoặc Đăng ký) -->
+            <!-- TRANG PHẢI (Form Đăng nhập, Đăng ký hoặc Quên mật khẩu) -->
             <div class="book-page book-page-right">
                 <div class="d-flex justify-content-end">
                     <span class="corner-ornament">❦</span>
@@ -101,7 +113,26 @@
 
                 <div class="right-page-body">
                     
-                    <!-- FORM 1: ĐĂNG NHẬP -->
+                    {{-- Thông báo chung --}}
+                    @if (session('status'))
+                        <div class="alert alert-success py-2 small mb-3">
+                            {!! session('status') !!}
+                        </div>
+                    @endif
+                    @if (session('success'))
+                        <div class="alert alert-success py-2 small mb-3">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    @if (session('error'))
+                        <div class="alert alert-danger py-2 small mb-3">
+                            {{ session('error') }}
+                        </div>
+                    @endif
+
+                    <!-- ==============================================
+                         FORM 1: ĐĂNG NHẬP
+                         ============================================== -->
                     <div class="auth-pane {{ $activeMode === 'login' ? 'active' : '' }}" id="paneLogin">
                         <div class="right-form-header">
                             <h2>Đăng Nhập</h2>
@@ -130,17 +161,31 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="login_password" class="form-label">Mật khẩu</label>
-                                <input type="password" 
-                                       id="login_password" 
-                                       name="password" 
-                                       class="form-control @if($activeMode === 'login') @error('password') is-invalid @enderror @endif" 
-                                       placeholder="••••••••"
-                                       autocomplete="current-password" 
-                                       required>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label for="login_password" class="form-label mb-0">Mật khẩu</label>
+                                    <a href="javascript:void(0)" onclick="switchAuthMode('forgot')" class="small text-muted text-decoration-none">
+                                        Quên mật khẩu?
+                                    </a>
+                                </div>
+                                <div class="input-group">
+                                    <input type="password" 
+                                           id="login_password" 
+                                           name="password" 
+                                           class="form-control @if($activeMode === 'login') @error('password') is-invalid @enderror @endif" 
+                                           placeholder="••••••••"
+                                           autocomplete="current-password" 
+                                           required>
+                                    <button type="button" 
+                                            class="btn btn-outline-secondary btn-toggle-password" 
+                                            data-target="login_password" 
+                                            tabindex="-1"
+                                            title="Hiện/Ẩn mật khẩu">
+                                        <span class="eye-icon">👁️</span>
+                                    </button>
+                                </div>
                                 @if($activeMode === 'login')
                                     @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 @endif
                             </div>
@@ -158,7 +203,9 @@
                         </div>
                     </div>
 
-                    <!-- FORM 2: ĐĂNG KÝ -->
+                    <!-- ==============================================
+                         FORM 2: ĐĂNG KÝ
+                         ============================================== -->
                     <div class="auth-pane {{ $activeMode === 'register' ? 'active' : '' }}" id="paneRegister">
                         <div class="right-form-header">
                             <h2>Tạo Tài Khoản</h2>
@@ -219,28 +266,46 @@
                             <div class="row g-2 mb-2">
                                 <div class="col-md-6">
                                     <label for="reg_password" class="form-label">Mật khẩu</label>
-                                    <input type="password" 
-                                           id="reg_password" 
-                                           name="password" 
-                                           class="form-control @if($activeMode === 'register') @error('password') is-invalid @enderror @endif" 
-                                           placeholder="Tối thiểu 6 ký tự"
-                                           autocomplete="new-password" 
-                                           required>
+                                    <div class="input-group">
+                                        <input type="password" 
+                                               id="reg_password" 
+                                               name="password" 
+                                               class="form-control @if($activeMode === 'register') @error('password') is-invalid @enderror @endif" 
+                                               placeholder="Tối thiểu 6 ký tự"
+                                               autocomplete="new-password" 
+                                               required>
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary btn-toggle-password" 
+                                                data-target="reg_password" 
+                                                tabindex="-1"
+                                                title="Hiện/Ẩn mật khẩu">
+                                            <span class="eye-icon">👁️</span>
+                                        </button>
+                                    </div>
                                     @if($activeMode === 'register')
                                         @error('password')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     @endif
                                 </div>
                                 <div class="col-md-6">
                                     <label for="reg_password_confirmation" class="form-label">Nhập lại</label>
-                                    <input type="password" 
-                                           id="reg_password_confirmation" 
-                                           name="password_confirmation" 
-                                           class="form-control" 
-                                           placeholder="Xác nhận lại"
-                                           autocomplete="new-password" 
-                                           required>
+                                    <div class="input-group">
+                                        <input type="password" 
+                                               id="reg_password_confirmation" 
+                                               name="password_confirmation" 
+                                               class="form-control" 
+                                               placeholder="Xác nhận lại"
+                                               autocomplete="new-password" 
+                                               required>
+                                        <button type="button" 
+                                                class="btn btn-outline-secondary btn-toggle-password" 
+                                                data-target="reg_password_confirmation" 
+                                                tabindex="-1"
+                                                title="Hiện/Ẩn mật khẩu">
+                                            <span class="eye-icon">👁️</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -253,6 +318,48 @@
                             <span class="small text-muted">Đã có tài khoản? </span>
                             <a href="javascript:void(0)" onclick="switchAuthMode('login')" class="small fw-bold">
                                 Đăng nhập ngay
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- ==============================================
+                         FORM 3: QUÊN MẬT KHẨU
+                         ============================================== -->
+                    <div class="auth-pane {{ $activeMode === 'forgot' ? 'active' : '' }}" id="paneForgot">
+                        <div class="right-form-header">
+                            <h2>Khôi Phục Mật Khẩu</h2>
+                            <p>Nhập email để nhận liên kết đặt lại mật khẩu mới</p>
+                        </div>
+
+                        <form method="POST" action="{{ route('password.email') }}" novalidate>
+                            @csrf
+                            <input type="hidden" name="_mode" value="forgot">
+
+                            <div class="mb-3">
+                                <label for="forgot_email" class="form-label">Email tài khoản</label>
+                                <input type="email" 
+                                       id="forgot_email" 
+                                       name="Email" 
+                                       value="{{ old('Email') }}" 
+                                       class="form-control @if($activeMode === 'forgot') @error('Email') is-invalid @enderror @endif" 
+                                       placeholder="ban@gmail.com"
+                                       autocomplete="email" 
+                                       required>
+                                @if($activeMode === 'forgot')
+                                    @error('Email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                @endif
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+                                Gửi Liên Kết Đặt Lại Mật Khẩu
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <a href="javascript:void(0)" onclick="switchAuthMode('login')" class="small text-muted text-decoration-none">
+                                ← Quay lại trang Đăng nhập
                             </a>
                         </div>
                     </div>
@@ -276,6 +383,7 @@
     const btnCloseBook = document.getElementById('btnCloseBook');
     const paneLogin = document.getElementById('paneLogin');
     const paneRegister = document.getElementById('paneRegister');
+    const paneForgot = document.getElementById('paneForgot');
     const btnTabLogin = document.getElementById('btnTabLogin');
     const btnTabRegister = document.getElementById('btnTabRegister');
     const leftTitle = document.getElementById('leftTitle');
@@ -298,21 +406,29 @@
         });
     }
 
-    // Chuyển đổi qua lại giữa Đăng nhập và Đăng ký trên trang sách
+    // Chuyển đổi qua lại giữa Đăng nhập, Đăng ký và Quên mật khẩu trên trang sách
     function switchAuthMode(mode) {
+        paneLogin.classList.remove('active');
+        paneRegister.classList.remove('active');
+        paneForgot.classList.remove('active');
+        btnTabLogin.classList.remove('active');
+        btnTabRegister.classList.remove('active');
+
         if (mode === 'register') {
-            paneLogin.classList.remove('active');
             paneRegister.classList.add('active');
-            btnTabLogin.classList.remove('active');
             btnTabRegister.classList.add('active');
             if (leftTitle) leftTitle.textContent = 'Gia Nhập Cùng Chúng Tôi';
             if (leftDesc) leftDesc.textContent = 'Mở tài khoản để đăng bán, trao đổi sách cũ hoặc tìm kiếm những tựa sách yêu thích giá rẻ.';
             window.history.replaceState(null, '', '{{ route('register') }}');
             document.title = 'Đăng ký - Trao Đổi Sách';
+        } else if (mode === 'forgot') {
+            paneForgot.classList.add('active');
+            if (leftTitle) leftTitle.textContent = 'Khôi Phục Mật Khẩu';
+            if (leftDesc) leftDesc.textContent = 'Đừng lo lắng, hãy nhập email tài khoản của bạn để nhận liên kết thiết lập lại mật khẩu mới an toàn.';
+            window.history.replaceState(null, '', '{{ route('password.request') }}');
+            document.title = 'Khôi phục mật khẩu - Trao Đổi Sách';
         } else {
-            paneRegister.classList.remove('active');
             paneLogin.classList.add('active');
-            btnTabRegister.classList.remove('active');
             btnTabLogin.classList.add('active');
             if (leftTitle) leftTitle.textContent = 'Chào Mừng Trở Lại!';
             if (leftDesc) leftDesc.textContent = 'Đăng nhập vào tài khoản của bạn để quản lý bài đăng, kết nối và trao đổi sách cùng mọi người.';

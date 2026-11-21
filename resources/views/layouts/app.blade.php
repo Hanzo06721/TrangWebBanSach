@@ -112,6 +112,31 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Toggle hiện / ẩn mật khẩu toàn hệ thống
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn-toggle-password');
+    if (!btn) return;
+    e.preventDefault();
+    const targetId = btn.dataset.target;
+    let input = targetId ? document.getElementById(targetId) : null;
+    if (!input) {
+        input = btn.closest('.input-group')?.querySelector('input');
+    }
+    if (!input) return;
+
+    const icon = btn.querySelector('.eye-icon') || btn;
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon.classList.contains('eye-icon')) icon.textContent = '🙈';
+        btn.setAttribute('title', 'Ẩn mật khẩu');
+    } else {
+        input.type = 'password';
+        if (icon.classList.contains('eye-icon')) icon.textContent = '👁️';
+        btn.setAttribute('title', 'Hiện mật khẩu');
+    }
+});
+</script>
 @stack('scripts')
 </body>
 </html>
