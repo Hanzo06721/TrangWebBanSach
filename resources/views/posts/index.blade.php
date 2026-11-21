@@ -493,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newFloatingPrev = doc.getElementById('floatingPrev');
             const newFloatingNext = doc.getElementById('floatingNext');
 
-            // Đợi chu kỳ lướt trang cũ mượt mà (280ms)
+            // Đợi chu kỳ uốn cong trang cũ lướt qua (340ms)
             setTimeout(() => {
                 if (newGrid && grid) {
                     grid.innerHTML = newGrid.innerHTML;
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (curPrev && newFloatingPrev) curPrev.replaceWith(newFloatingPrev);
                 if (curNext && newFloatingNext) curNext.replaceWith(newFloatingNext);
 
-                // Chuyển sang hiệu ứng mở trang sách mới ra êm ái (flip-in)
+                // Chuyển sang hiệu ứng mở trang sách mới uốn cong vào mượt mà (flip-in)
                 grid.classList.remove(outClass);
                 grid.classList.add(inClass);
 
@@ -525,14 +525,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.scrollTo({ top: stageTop, behavior: 'smooth' });
                 }
 
-                // Hoàn tất hiệu ứng mở trang nhẹ nhàng
+                // Hoàn tất hiệu ứng mở trang uốn cong
                 setTimeout(() => {
                     grid.classList.remove(inClass);
                     bookStage.classList.remove('is-flipping');
                     bookStage.style.minHeight = '';
                     isFlipping = false;
-                }, 440);
-            }, 280);
+                }, 480);
+            }, 340);
 
         } catch (err) {
             window.location.href = url;

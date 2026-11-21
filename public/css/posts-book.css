@@ -964,11 +964,11 @@
 }
 
 /* --------------------------------------------------------------------------
-   9. HIỆU ỨNG LẬT SÁCH 3D MỀM MẠI & TỰ NHIÊN (ORGANIC SILK PAGE-FLIP)
+   9. HIỆU ỨNG LẬT SÁCH 3D UỐN CONG CHÂN THỰC (CURVED BOOK PAGE-CURL)
    -------------------------------------------------------------------------- */
 .book-page-flip-stage {
-  perspective: 1600px;
-  perspective-origin: 50% 35%;
+  perspective: 2000px;
+  perspective-origin: 50% 40%;
   position: relative;
   min-height: 420px;
   transform-style: preserve-3d;
@@ -979,104 +979,158 @@
   transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity, border-radius, clip-path;
+  transition: box-shadow 0.3s ease;
 }
 
-/* Ánh sáng giấy lụa phản chiếu nhẹ nhàng khi lật trang */
+/* Ánh sáng & nếp bóng hình trụ mô phỏng độ uốn cong của trang sách */
 .page-flip-curl-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: linear-gradient(
-    105deg,
+    95deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.4) 35%,
-    rgba(21, 69, 54, 0.05) 70%,
+    rgba(0, 0, 0, 0.08) 25%,
+    rgba(255, 255, 255, 0.65) 45%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(14, 35, 27, 0.22) 55%,
+    rgba(0, 0, 0, 0.05) 70%,
     transparent 100%
   );
+  background-size: 200% 100%;
   z-index: 15;
   opacity: 0;
   border-radius: 1rem;
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  mix-blend-mode: overlay;
+  transition: opacity 0.25s ease;
 }
 
 .is-flipping .page-flip-curl-overlay {
   opacity: 1;
 }
 
-/* Lật tiến sang TRÁI (Tiến sang trang sau - lướt mềm mại) */
+/* 1. LẬT TIẾN (Sang trang sau - Nếp lật uốn cong từ phải sang trái) */
 .page-flipping-out-left {
-  animation: softPageFlipOutLeft 0.32s cubic-bezier(0.35, 0, 0.65, 0.5) forwards !important;
-  transform-origin: left 30% !important;
+  animation: curvedPageFlipOutLeft 0.38s cubic-bezier(0.42, 0, 0.58, 1) forwards !important;
+  transform-origin: left center !important;
   pointer-events: none !important;
 }
 
 .page-flipping-in-right {
-  animation: softPageFlipInRight 0.44s cubic-bezier(0.18, 0.95, 0.32, 1) forwards !important;
-  transform-origin: left 30% !important;
+  animation: curvedPageFlipInRight 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  transform-origin: left center !important;
 }
 
-/* Lật lùi sang PHẢI (Lùi về trang trước - lướt mềm mại) */
+/* 2. LẬT LÙI (Về trang trước - Nếp lật uốn cong từ trái sang phải) */
 .page-flipping-out-right {
-  animation: softPageFlipOutRight 0.32s cubic-bezier(0.35, 0, 0.65, 0.5) forwards !important;
-  transform-origin: right 30% !important;
+  animation: curvedPageFlipOutRight 0.38s cubic-bezier(0.42, 0, 0.58, 1) forwards !important;
+  transform-origin: right center !important;
   pointer-events: none !important;
 }
 
 .page-flipping-in-left {
-  animation: softPageFlipInLeft 0.44s cubic-bezier(0.18, 0.95, 0.32, 1) forwards !important;
-  transform-origin: right 30% !important;
+  animation: curvedPageFlipInLeft 0.48s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  transform-origin: right center !important;
 }
 
-@keyframes softPageFlipOutLeft {
+/* KEYFRAMES: MÔ PHỎNG ĐỘ CONG VÒM CỦA TRANG SÁCH KHI LẬT TIẾN */
+@keyframes curvedPageFlipOutLeft {
   0% {
-    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
+    transform: perspective(2000px) rotateY(0deg) translateZ(0);
+    border-radius: 0.95rem;
+    clip-path: inset(0 0 0 0 round 0.95rem);
     opacity: 1;
-    filter: blur(0px);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+  }
+  45% {
+    /* Đỉnh điểm uốn cong: Bụng trang sách vồng lên về phía người đọc (translateZ 55px) */
+    transform: perspective(2000px) rotateY(-36deg) rotateZ(-2.2deg) translateX(-25px) translateZ(55px) scale(0.97);
+    border-radius: 0.95rem 40% 40% 0.95rem / 0.95rem 50% 50% 0.95rem;
+    clip-path: ellipse(115% 135% at -15% 50%);
+    opacity: 0.88;
+    filter: drop-shadow(-25px 12px 30px rgba(10, 35, 27, 0.3));
   }
   100% {
-    transform: perspective(1600px) rotateY(-28deg) rotateZ(-1.8deg) translateX(-45px) scale(0.96);
+    transform: perspective(2000px) rotateY(-78deg) rotateZ(-3.8deg) translateX(-55px) translateZ(15px) scale(0.93);
+    border-radius: 0.95rem 75% 75% 0.95rem / 0.95rem 50% 50% 0.95rem;
+    clip-path: ellipse(85% 150% at -25% 50%);
     opacity: 0;
-    filter: blur(1.5px);
-  }
-}
-
-@keyframes softPageFlipInRight {
-  0% {
-    transform: perspective(1600px) rotateY(26deg) rotateZ(1.6deg) translateX(45px) scale(0.96);
-    opacity: 0;
-    filter: blur(1.5px);
-  }
-  100% {
-    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
-    opacity: 1;
-    filter: blur(0px);
-  }
-}
-
-@keyframes softPageFlipOutRight {
-  0% {
-    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
-    opacity: 1;
-    filter: blur(0px);
-  }
-  100% {
-    transform: perspective(1600px) rotateY(28deg) rotateZ(1.8deg) translateX(45px) scale(0.96);
-    opacity: 0;
-    filter: blur(1.5px);
+    filter: drop-shadow(-40px 15px 35px rgba(10, 35, 27, 0.45));
   }
 }
 
-@keyframes softPageFlipInLeft {
+@keyframes curvedPageFlipInRight {
   0% {
-    transform: perspective(1600px) rotateY(-26deg) rotateZ(-1.6deg) translateX(-45px) scale(0.96);
+    transform: perspective(2000px) rotateY(78deg) rotateZ(3.8deg) translateX(55px) translateZ(15px) scale(0.93);
+    border-radius: 75% 0.95rem 0.95rem 75% / 50% 0.95rem 0.95rem 50%;
+    clip-path: ellipse(85% 150% at 125% 50%);
     opacity: 0;
-    filter: blur(1.5px);
+    filter: drop-shadow(40px 15px 35px rgba(10, 35, 27, 0.45));
+  }
+  55% {
+    /* Trang mới hạ dần độ cong vòm */
+    transform: perspective(2000px) rotateY(30deg) rotateZ(1.8deg) translateX(20px) translateZ(45px) scale(0.97);
+    border-radius: 35% 0.95rem 0.95rem 35% / 45% 0.95rem 0.95rem 45%;
+    clip-path: ellipse(115% 135% at 115% 50%);
+    opacity: 0.9;
+    filter: drop-shadow(25px 10px 25px rgba(10, 35, 27, 0.25));
   }
   100% {
-    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
+    transform: perspective(2000px) rotateY(0deg) rotateZ(0deg) translateX(0) translateZ(0) scale(1);
+    border-radius: 0.95rem;
+    clip-path: inset(0 0 0 0 round 0.95rem);
     opacity: 1;
-    filter: blur(0px);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+  }
+}
+
+/* KEYFRAMES: MÔ PHỎNG ĐỘ CONG VÒM CỦA TRANG SÁCH KHI LẬT LÙI */
+@keyframes curvedPageFlipOutRight {
+  0% {
+    transform: perspective(2000px) rotateY(0deg) translateZ(0);
+    border-radius: 0.95rem;
+    clip-path: inset(0 0 0 0 round 0.95rem);
+    opacity: 1;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+  }
+  45% {
+    transform: perspective(2000px) rotateY(36deg) rotateZ(2.2deg) translateX(25px) translateZ(55px) scale(0.97);
+    border-radius: 40% 0.95rem 0.95rem 40% / 50% 0.95rem 0.95rem 50%;
+    clip-path: ellipse(115% 135% at 115% 50%);
+    opacity: 0.88;
+    filter: drop-shadow(25px 12px 30px rgba(10, 35, 27, 0.3));
+  }
+  100% {
+    transform: perspective(2000px) rotateY(78deg) rotateZ(3.8deg) translateX(55px) translateZ(15px) scale(0.93);
+    border-radius: 75% 0.95rem 0.95rem 75% / 50% 0.95rem 0.95rem 50%;
+    clip-path: ellipse(85% 150% at 125% 50%);
+    opacity: 0;
+    filter: drop-shadow(40px 15px 35px rgba(10, 35, 27, 0.45));
+  }
+}
+
+@keyframes curvedPageFlipInLeft {
+  0% {
+    transform: perspective(2000px) rotateY(-78deg) rotateZ(-3.8deg) translateX(-55px) translateZ(15px) scale(0.93);
+    border-radius: 0.95rem 75% 75% 0.95rem / 0.95rem 50% 50% 0.95rem;
+    clip-path: ellipse(85% 150% at -25% 50%);
+    opacity: 0;
+    filter: drop-shadow(-40px 15px 35px rgba(10, 35, 27, 0.45));
+  }
+  55% {
+    transform: perspective(2000px) rotateY(-30deg) rotateZ(-1.8deg) translateX(-20px) translateZ(45px) scale(0.97);
+    border-radius: 0.95rem 35% 35% 0.95rem / 0.95rem 45% 45% 0.95rem;
+    clip-path: ellipse(115% 135% at -15% 50%);
+    opacity: 0.9;
+    filter: drop-shadow(-25px 10px 25px rgba(10, 35, 27, 0.25));
+  }
+  100% {
+    transform: perspective(2000px) rotateY(0deg) rotateZ(0deg) translateX(0) translateZ(0) scale(1);
+    border-radius: 0.95rem;
+    clip-path: inset(0 0 0 0 round 0.95rem);
+    opacity: 1;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
   }
 }
 
