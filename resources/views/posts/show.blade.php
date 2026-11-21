@@ -367,9 +367,17 @@ document.addEventListener('DOMContentLoaded', () => {
         @forelse($post->comments as $comment)
             <div class="border-top py-3">
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <div>
-                        <strong class="text-success">{{ $comment->user->FullName ?? 'Người dùng' }}</strong>
-                        <small class="text-muted ms-2">{{ optional($comment->CreatedAt)->format('d/m/Y H:i') }}</small>
+                    <div class="d-flex align-items-center gap-2">
+                        @include('partials.avatar', ['user' => $comment->user, 'size' => 32])
+                        <div>
+                            <strong class="text-success">{{ $comment->user->FullName ?? 'Người dùng' }}</strong>
+                            @if($comment->UserID === $post->UserID)
+                                <span class="badge rounded-pill ms-1" style="background: linear-gradient(135deg, #154536, #0e3025); color: #fae498; border: 1px solid #d4af37; font-size: 0.72rem; padding: 0.22rem 0.6rem; vertical-align: middle; box-shadow: 0 2px 6px rgba(21, 69, 54, 0.2);" title="Người đăng cuốn sách này">
+                                    ✍️ Tác giả
+                                </span>
+                            @endif
+                            <small class="text-muted ms-2">{{ optional($comment->CreatedAt)->format('d/m/Y H:i') }}</small>
+                        </div>
                     </div>
                     @if(auth()->check() && (auth()->user()->UserID === $comment->UserID || auth()->user()->isAdmin()))
                         <form method="POST" action="{{ route('posts.comments.destroy', $comment) }}" class="d-inline" onsubmit="return confirm('Xóa bình luận?')">
@@ -403,19 +411,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- Phản hồi cấp 2 -->
                 @foreach($comment->replies->where('Status', 'Hiển thị') as $reply)
                     <div class="forum-reply ms-4 mt-3 p-2 bg-light rounded">
-                        <div class="d-flex justify-content-between">
-                            <strong class="text-dark">{{ $reply->user->FullName ?? 'Người dùng' }}</strong>
-                            <small class="text-muted">{{ optional($reply->CreatedAt)->format('d/m/Y H:i') }}</small>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                @include('partials.avatar', ['user' => $reply->user, 'size' => 26])
+                                <div>
+                                    <strong class="text-dark">{{ $reply->user->FullName ?? 'Người dùng' }}</strong>
+                                    @if($reply->UserID === $post->UserID)
+                                        <span class="badge rounded-pill ms-1" style="background: linear-gradient(135deg, #154536, #0e3025); color: #fae498; border: 1px solid #d4af37; font-size: 0.68rem; padding: 0.18rem 0.5rem; vertical-align: middle; box-shadow: 0 2px 6px rgba(21, 69, 54, 0.2);" title="Người đăng cuốn sách này">
+                                            ✍️ Tác giả
+                                        </span>
+                                    @endif
+                                    <small class="text-muted ms-2">{{ optional($reply->CreatedAt)->format('d/m/Y H:i') }}</small>
+                                </div>
+                            </div>
+                            @if(auth()->check() && auth()->user()->isAdmin())
+                                <form method="POST" action="{{ route('posts.comments.destroy', $reply) }}" class="d-inline mt-1" onsubmit="return confirm('Xóa phản hồi này?')">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-link btn-sm text-danger p-0 text-decoration-none">Xóa</button>
+                                </form>
+                            @endif
                         </div>
                         <div>{{ $reply->Content }}</div>
                         @if($reply->ImagePath)
                             <img src="{{ asset('storage/'.$reply->ImagePath) }}" class="forum-comment-image mt-2" alt="Ảnh phản hồi">
-                        @endif
-                        @if(auth()->check() && auth()->user()->isAdmin())
-                            <form method="POST" action="{{ route('posts.comments.destroy', $reply) }}" class="d-inline mt-1" onsubmit="return confirm('Xóa phản hồi này?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-link btn-sm text-danger p-0 text-decoration-none">Xóa</button>
-                            </form>
                         @endif
                     </div>
                 @endforeach
