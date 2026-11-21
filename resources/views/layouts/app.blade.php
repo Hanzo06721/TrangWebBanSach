@@ -21,12 +21,23 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Trang chủ</a></li>
+            @php
+                $isHome = request()->routeIs('home');
+                $isPostShow = request()->routeIs('posts.show');
+                $isForumPost = $isPostShow && isset($post) && $post->PostType === 'Diễn đàn';
+                $isForum = request()->routeIs('posts.forum') || $isForumPost;
+                $isPosts = request()->routeIs('posts.index') || ($isPostShow && !$isForumPost);
+                $isCreate = request()->routeIs('posts.create');
+                $isMine = request()->routeIs('posts.mine') || request()->routeIs('posts.edit');
+                $isAdmin = request()->routeIs('admin.*');
+            @endphp
+            <ul class="navbar-nav me-auto site-nav-links" id="siteNavLinks">
+                <div class="nav-sliding-pill" id="navSlidingPill" aria-hidden="true"></div>
+                <li class="nav-item"><a class="nav-link {{ $isHome ? 'active' : '' }}" href="{{ route('home') }}">Trang chủ</a></li>
                 @auth
                     @if(auth()->user()->isAdmin())
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Quản trị</a>
+                            <a class="nav-link dropdown-toggle {{ $isAdmin ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Quản trị</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{{ route('admin.categories.index') }}">Quản lý danh mục</a></li>
                                 <li><a class="dropdown-item" href="{{ route('admin.books.index') }}">Quản lý sách</a></li>
@@ -40,23 +51,23 @@
                             </ul>
                         </li>
                     @else
-                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.index') }}">Bài đăng</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.forum') }}">Diễn đàn</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.create') }}">Đăng bài</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('posts.mine') }}">Bài của tôi</a></li>
+                        <li class="nav-item"><a class="nav-link {{ $isPosts ? 'active' : '' }}" href="{{ route('posts.index') }}">Bài đăng</a></li>
+                        <li class="nav-item"><a class="nav-link {{ $isForum ? 'active' : '' }}" href="{{ route('posts.forum') }}">Diễn đàn</a></li>
+                        <li class="nav-item"><a class="nav-link {{ $isCreate ? 'active' : '' }}" href="{{ route('posts.create') }}">Đăng bài</a></li>
+                        <li class="nav-item"><a class="nav-link {{ $isMine ? 'active' : '' }}" href="{{ route('posts.mine') }}">Bài của tôi</a></li>
                     @endif
                 @else
-                    <li class="nav-item"><a class="nav-link" href="{{ route('posts.index') }}">Bài đăng</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ route('posts.forum') }}">Diễn đàn</a></li>
+                    <li class="nav-item"><a class="nav-link {{ $isPosts ? 'active' : '' }}" href="{{ route('posts.index') }}">Bài đăng</a></li>
+                    <li class="nav-item"><a class="nav-link {{ $isForum ? 'active' : '' }}" href="{{ route('posts.forum') }}">Diễn đàn</a></li>
                 @endauth
             </ul>
             <ul class="navbar-nav align-items-md-center">
                 @guest
-                    <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Đăng nhập</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->routeIs('login') || request()->routeIs('password.*') ? 'active-guest' : '' }}" href="{{ route('login') }}">Đăng nhập</a></li>
                     <li class="nav-item ms-md-2"><a class="btn btn-light btn-sm" href="{{ route('register') }}">Đăng ký</a></li>
                 @else
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button"
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 {{ request()->routeIs('profile.*') ? 'active-profile' : '' }}" href="#" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
                             @include('partials.avatar', ['user' => auth()->user(), 'size' => 30])
                             <span>{{ auth()->user()->FullName }}</span>
@@ -136,6 +147,94 @@ document.addEventListener('click', function (e) {
         btn.setAttribute('title', 'Hiện mật khẩu');
     }
 });
+
+// Hiệu ứng thanh chỉ mục di chuyển trượt theo tab (Sliding Active Indicator)
+function initNavSlider() {
+    const navLinksContainer = document.getElementById('siteNavLinks');
+    const pill = document.getElementById('navSlidingPill');
+    if (!navLinksContainer || !pill) return;
+
+    const links = Array.from(navLinksContainer.querySelectorAll('.nav-link'));
+    if (!links.length) return;
+
+    let activeLink = navLinksContainer.querySelector('.nav-link.active');
+
+    function updatePill(targetEl, immediate = false) {
+        if (window.innerWidth < 768) {
+            pill.style.opacity = '0';
+            return;
+        }
+
+        if (!targetEl) {
+            pill.style.opacity = '0';
+            return;
+        }
+
+        const containerRect = navLinksContainer.getBoundingClientRect();
+        const targetRect = targetEl.getBoundingClientRect();
+
+        const left = targetRect.left - containerRect.left;
+        const top = targetRect.top - containerRect.top;
+        const width = targetRect.width;
+        const height = targetRect.height;
+
+        if (immediate) {
+            pill.style.transition = 'none';
+        } else {
+            pill.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), width 0.35s cubic-bezier(0.25, 1, 0.5, 1), height 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease';
+        }
+
+        pill.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+        pill.style.width = `${width}px`;
+        pill.style.height = `${height}px`;
+        pill.style.opacity = '1';
+
+        if (immediate) {
+            pill.offsetHeight; // force reflow
+            pill.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), width 0.35s cubic-bezier(0.25, 1, 0.5, 1), height 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.22s ease';
+        }
+    }
+
+    navLinksContainer.classList.add('js-initialized');
+
+    // Cập nhật vị trí ngay khi sẵn sàng
+    requestAnimationFrame(() => {
+        updatePill(activeLink, true);
+    });
+
+    // Căn chỉnh lại khi web fonts tải xong
+    if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+            updatePill(activeLink, true);
+        });
+    }
+
+    // Sự kiện di chuột & chuyển tab bàn phím
+    links.forEach(link => {
+        link.addEventListener('mouseenter', () => updatePill(link));
+        link.addEventListener('focus', () => updatePill(link));
+        link.addEventListener('click', () => {
+            activeLink = link;
+            updatePill(link);
+        });
+    });
+
+    // Rời chuột khỏi thanh menu -> quay về tab trang hiện tại
+    navLinksContainer.addEventListener('mouseleave', () => {
+        updatePill(activeLink);
+    });
+
+    // Xử lý co giãn màn hình
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            updatePill(activeLink, true);
+        }, 60);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initNavSlider);
 </script>
 @stack('scripts')
 </body>

@@ -18,8 +18,130 @@ body {
   color: var(--ink);
 }
 body > main { flex: 1 0 auto; }
-.site-nav { background: var(--ink); z-index: 1030; }
-.site-nav .navbar-brand { font-weight: 700; letter-spacing: .2px; }
+.site-nav {
+  background: #14211d;
+  z-index: 1030;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+  transition: all 0.3s ease;
+}
+.site-nav .navbar-brand {
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: #fff;
+  font-size: 1.25rem;
+  transition: opacity 0.2s ease;
+}
+.site-nav .navbar-brand:hover {
+  opacity: 0.9;
+  color: #fff;
+}
+
+/* Nav links list container */
+.site-nav-links {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-left: 0.75rem;
+}
+
+/* Individual nav link */
+.site-nav-links .nav-link {
+  position: relative;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.68) !important;
+  font-weight: 500;
+  font-size: 0.935rem;
+  padding: 0.42rem 1.05rem !important;
+  border-radius: 9999px;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+/* Hover state on nav link */
+.site-nav-links .nav-link:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Active nav link ("sáng cái trang mà mình đang ở") */
+.site-nav-links .nav-link.active {
+  color: #ffffff !important;
+  font-weight: 600;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.75), 0 0 4px rgba(224, 178, 74, 0.6);
+}
+
+/* Sliding active pill indicator */
+.nav-sliding-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, rgba(29, 90, 71, 0.95) 0%, rgba(38, 118, 93, 0.95) 100%);
+  border: 1px solid rgba(224, 178, 74, 0.45);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), 0 0 18px rgba(46, 175, 125, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width, height, opacity;
+}
+
+/* Glowing golden light bar at the bottom of the active pill */
+.nav-sliding-pill::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 2.5px;
+  border-radius: 3px;
+  background: #e0b24a;
+  box-shadow: 0 0 8px #e0b24a, 0 0 14px rgba(224, 178, 74, 0.85);
+}
+
+/* Fallback before JS initializes */
+.site-nav-links:not(.js-initialized) .nav-link.active {
+  background: linear-gradient(135deg, rgba(29, 90, 71, 0.95) 0%, rgba(38, 118, 93, 0.95) 100%);
+  border: 1px solid rgba(224, 178, 74, 0.45);
+}
+
+/* Mobile responsive styles */
+@media (max-width: 767.98px) {
+  .site-nav-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+    padding: 0.75rem 0 0.5rem;
+  }
+  .nav-sliding-pill {
+    display: none !important;
+  }
+  .site-nav-links .nav-link {
+    padding: 0.6rem 1rem !important;
+    border-radius: 8px;
+  }
+  .site-nav-links .nav-link.active {
+    background: linear-gradient(90deg, rgba(29, 90, 71, 0.95), rgba(38, 118, 93, 0.8));
+    border-left: 3px solid #e0b24a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Guest and user profile link active states */
+.site-nav .nav-link.active-guest,
+.site-nav .nav-link.active-profile {
+  color: #fff !important;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  padding: 0.4rem 0.9rem !important;
+}
 .btn-primary {
   --bs-btn-bg: #1d5a47; --bs-btn-border-color: #1d5a47;
   --bs-btn-hover-bg: #154436; --bs-btn-hover-border-color: #154436;
