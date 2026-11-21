@@ -964,11 +964,11 @@
 }
 
 /* --------------------------------------------------------------------------
-   9. HIỆU ỨNG LẬT SÁCH 3D (3D BOOK PAGE-FLIP TRANSITIONS & KEYFRAMES)
+   9. HIỆU ỨNG LẬT SÁCH 3D MỀM MẠI & TỰ NHIÊN (ORGANIC SILK PAGE-FLIP)
    -------------------------------------------------------------------------- */
 .book-page-flip-stage {
-  perspective: 2200px;
-  perspective-origin: 50% 40%;
+  perspective: 1600px;
+  perspective-origin: 50% 35%;
   position: relative;
   min-height: 420px;
   transform-style: preserve-3d;
@@ -979,19 +979,19 @@
   transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  will-change: transform, opacity;
+  will-change: transform, opacity, filter;
 }
 
-/* Gáy sách đổ bóng ảo lúc lật */
+/* Ánh sáng giấy lụa phản chiếu nhẹ nhàng khi lật trang */
 .page-flip-curl-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: linear-gradient(
-    to right,
-    rgba(14, 35, 27, 0.28) 0%,
-    rgba(255, 255, 255, 0.35) 30%,
-    rgba(14, 35, 27, 0.18) 70%,
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 35%,
+    rgba(21, 69, 54, 0.05) 70%,
     transparent 100%
   );
   z-index: 15;
@@ -1004,95 +1004,79 @@
   opacity: 1;
 }
 
-/* Lật trang sang TRÁI (Tiến sang trang sau) */
+/* Lật tiến sang TRÁI (Tiến sang trang sau - lướt mềm mại) */
 .page-flipping-out-left {
-  animation: smoothFlipOutLeft 0.36s cubic-bezier(0.4, 0, 0.7, 0.2) forwards !important;
-  transform-origin: left center !important;
+  animation: softPageFlipOutLeft 0.32s cubic-bezier(0.35, 0, 0.65, 0.5) forwards !important;
+  transform-origin: left 30% !important;
   pointer-events: none !important;
 }
 
 .page-flipping-in-right {
-  animation: smoothFlipInRight 0.44s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-  transform-origin: left center !important;
+  animation: softPageFlipInRight 0.44s cubic-bezier(0.18, 0.95, 0.32, 1) forwards !important;
+  transform-origin: left 30% !important;
 }
 
-/* Lật trang sang PHẢI (Lùi về trang trước) */
+/* Lật lùi sang PHẢI (Lùi về trang trước - lướt mềm mại) */
 .page-flipping-out-right {
-  animation: smoothFlipOutRight 0.36s cubic-bezier(0.4, 0, 0.7, 0.2) forwards !important;
-  transform-origin: right center !important;
+  animation: softPageFlipOutRight 0.32s cubic-bezier(0.35, 0, 0.65, 0.5) forwards !important;
+  transform-origin: right 30% !important;
   pointer-events: none !important;
 }
 
 .page-flipping-in-left {
-  animation: smoothFlipInLeft 0.44s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
-  transform-origin: right center !important;
+  animation: softPageFlipInLeft 0.44s cubic-bezier(0.18, 0.95, 0.32, 1) forwards !important;
+  transform-origin: right 30% !important;
 }
 
-@keyframes smoothFlipOutLeft {
+@keyframes softPageFlipOutLeft {
   0% {
-    transform: rotateY(0deg) translateZ(0);
+    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
     opacity: 1;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
-  }
-  50% {
-    opacity: 0.85;
-    filter: drop-shadow(-20px 10px 25px rgba(10, 35, 27, 0.3));
+    filter: blur(0px);
   }
   100% {
-    transform: rotateY(-90deg) translateZ(25px);
+    transform: perspective(1600px) rotateY(-28deg) rotateZ(-1.8deg) translateX(-45px) scale(0.96);
     opacity: 0;
-    filter: drop-shadow(-40px 15px 35px rgba(10, 35, 27, 0.45));
+    filter: blur(1.5px);
   }
 }
 
-@keyframes smoothFlipInRight {
+@keyframes softPageFlipInRight {
   0% {
-    transform: rotateY(90deg) translateZ(25px);
+    transform: perspective(1600px) rotateY(26deg) rotateZ(1.6deg) translateX(45px) scale(0.96);
     opacity: 0;
-    filter: drop-shadow(40px 15px 35px rgba(10, 35, 27, 0.45));
-  }
-  50% {
-    opacity: 0.85;
-    filter: drop-shadow(20px 10px 25px rgba(10, 35, 27, 0.3));
+    filter: blur(1.5px);
   }
   100% {
-    transform: rotateY(0deg) translateZ(0);
+    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
     opacity: 1;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+    filter: blur(0px);
   }
 }
 
-@keyframes smoothFlipOutRight {
+@keyframes softPageFlipOutRight {
   0% {
-    transform: rotateY(0deg) translateZ(0);
+    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
     opacity: 1;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
-  }
-  50% {
-    opacity: 0.85;
-    filter: drop-shadow(20px 10px 25px rgba(10, 35, 27, 0.3));
+    filter: blur(0px);
   }
   100% {
-    transform: rotateY(90deg) translateZ(25px);
+    transform: perspective(1600px) rotateY(28deg) rotateZ(1.8deg) translateX(45px) scale(0.96);
     opacity: 0;
-    filter: drop-shadow(40px 15px 35px rgba(10, 35, 27, 0.45));
+    filter: blur(1.5px);
   }
 }
 
-@keyframes smoothFlipInLeft {
+@keyframes softPageFlipInLeft {
   0% {
-    transform: rotateY(-90deg) translateZ(25px);
+    transform: perspective(1600px) rotateY(-26deg) rotateZ(-1.6deg) translateX(-45px) scale(0.96);
     opacity: 0;
-    filter: drop-shadow(-40px 15px 35px rgba(10, 35, 27, 0.45));
-  }
-  50% {
-    opacity: 0.85;
-    filter: drop-shadow(-20px 10px 25px rgba(10, 35, 27, 0.3));
+    filter: blur(1.5px);
   }
   100% {
-    transform: rotateY(0deg) translateZ(0);
+    transform: perspective(1600px) rotateY(0deg) rotateZ(0deg) translateX(0) scale(1);
     opacity: 1;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.05));
+    filter: blur(0px);
   }
 }
 
