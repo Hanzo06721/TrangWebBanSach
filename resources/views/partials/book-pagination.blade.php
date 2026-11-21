@@ -83,7 +83,13 @@
                 📖 Trang <strong class="text-gold">{{ $paginator->currentPage() }}</strong> / {{ $paginator->lastPage() }}
             </span>
             <span class="page-info-sub">
-                (Đang mở từ cuốn số {{ $paginator->firstItem() }} đến {{ $paginator->lastItem() }} trên kệ {{ $paginator->total() }} tác phẩm)
+                @if(request()->routeIs('admin.books.*'))
+                    (Đang mở từ cuốn số {{ $paginator->firstItem() }} đến {{ $paginator->lastItem() }} trên kệ {{ $paginator->total() }} tác phẩm)
+                @elseif(request()->routeIs('admin.*'))
+                    (Hiển thị từ mục {{ $paginator->firstItem() }} đến {{ $paginator->lastItem() }} trên tổng số {{ $paginator->total() }} mục)
+                @else
+                    (Đang mở từ cuốn số {{ $paginator->firstItem() }} đến {{ $paginator->lastItem() }} trên kệ {{ $paginator->total() }} tác phẩm)
+                @endif
             </span>
         </div>
 

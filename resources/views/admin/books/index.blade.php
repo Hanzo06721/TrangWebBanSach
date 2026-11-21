@@ -51,7 +51,6 @@
     </div>
 </div>
 
-</div>
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <form action="{{ route('admin.books.index') }}" method="GET">
@@ -97,27 +96,25 @@
     </div>
     <div class="row g-3">
         @foreach($books as $book)
-            <div class="col-md-4  col-lg-3">
+            <div class="col-md-4 col-lg-3">
                 <a href="{{ route('admin.books.show', $book->BookID) }}" class="text-decoration-none text-dark">
-                    <div class="card shadow-sm">
+                    <div class="card shadow-sm h-100">
                         <img src="{{ asset('images/books/'.$book->CoverImage) }}"
-                        class="card-img-top"
-                        alt="Ảnh bìa sách"
-                        style="height:200px;object-fit:cover;">
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $book->Title }}</h5>
-                        <p class="text-muted mb-2">Tác giả: {{ $book->AuthorName }}</p>
-                        <p class="text-muted mb-2">ISBN: {{$book->ISBN }}</p>
+                             class="card-img-top"
+                             alt="Ảnh bìa sách"
+                             style="height:200px;object-fit:cover;">
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate" title="{{ $book->Title }}">{{ $book->Title }}</h5>
+                            <p class="text-muted mb-2 text-truncate">Tác giả: {{ $book->AuthorName }}</p>
+                            <p class="text-muted mb-0 small">ISBN: {{ $book->ISBN }}</p>
+                        </div>
                     </div>
                 </a>
             </div>
-            
-            
         @endforeach
-        <div class="d-flex justify-content-center mt-4">
-                {{ $books->links() }}
-        </div>
     </div>
-    
+
+    <div class="d-flex justify-content-center mt-4">
+        {{ $books->links() }}
+    </div>
 @endsection
