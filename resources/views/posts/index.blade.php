@@ -414,17 +414,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initCardTilt();
 
-    // 2. Xử lý LẬT TRANG SÁCH 3D (Smooth Book Page-Flip Navigation)
+    // 2. Xử lý LẬT TRANG SÁCH 3D SIÊU MƯỢT (Smooth 3D Book Page-Flip Navigation)
     let isFlipping = false;
+    let audioCtx = null;
+
+    // Hiệu ứng âm thanh sột soạt lật trang sách nhẹ nhàng (Web Audio API)
+    const playPageFlipSound = () => {
+        try {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const bufferSize = Math.floor(audioCtx.sampleRate * 0.11);
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = (Math.random() * 2 - 1) * 0.7;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1400, audioCtx.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(450, audioCtx.currentTime + 0.11);
+            filter.Q.setValueAtTime(1.6, audioCtx.currentTime);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.11);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            noise.start();
+        } catch (e) {
+            // Không chặn tiến trình nếu trình duyệt hạn chế autoplay
+        }
+    };
 
     const flipToPage = async (url, direction = 'next') => {
         if (!url || isFlipping) return;
         isFlipping = true;
 
+        playPageFlipSound();
+
+        // Khóa chiều cao tối thiểu để không bị giật trang khi tráo nội dung
+        const currentHeight = bookStage.offsetHeight;
+        bookStage.style.minHeight = currentHeight + 'px';
         bookStage.classList.add('is-flipping');
         const grid = document.getElementById('postResults');
 
-        // Bắt đầu hiệu ứng lật trang cũ đi (flip-out)
+        // Bắt đầu hiệu ứng gập trang sách cũ đi (flip-out)
         const outClass = direction === 'next' ? 'page-flipping-out-left' : 'page-flipping-out-right';
         const inClass = direction === 'next' ? 'page-flipping-in-right' : 'page-flipping-in-left';
 
@@ -450,7 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newFloatingPrev = doc.getElementById('floatingPrev');
             const newFloatingNext = doc.getElementById('floatingNext');
 
-            // Đợi nửa chu kỳ lật sách (trang đang quay nghiêng mép sách)
+            // Đợi đúng chu kỳ gập trang cũ đến vị trí vuông góc (360ms)
             setTimeout(() => {
                 if (newGrid && grid) {
                     grid.innerHTML = newGrid.innerHTML;
@@ -460,32 +503,36 @@ document.addEventListener('DOMContentLoaded', () => {
                     paginationContainer.innerHTML = newPagination.innerHTML;
                 }
 
-                // Cập nhật nút mũi tên lật sách 2 bên mép
+                // Cập nhật 2 nút lật nổi bên mép
                 const curPrev = document.getElementById('floatingPrev');
                 const curNext = document.getElementById('floatingNext');
                 if (curPrev && newFloatingPrev) curPrev.replaceWith(newFloatingPrev);
                 if (curNext && newFloatingNext) curNext.replaceWith(newFloatingNext);
 
-                // Chuyển sang hiệu ứng mở trang sách mới vào (flip-in)
+                // Chuyển sang hiệu ứng mở trang sách mới ra mượt mà (flip-in)
                 grid.classList.remove(outClass);
                 grid.classList.add(inClass);
 
-                // Cập nhật URL trình duyệt
+                // Cập nhật đường dẫn URL trên thanh địa chỉ
                 window.history.pushState(null, '', url);
 
-                // Khởi tạo lại hiệu ứng rê chuột cho thẻ mới
+                // Kích hoạt lại hiệu ứng tương tác rê chuột cho các thẻ sách mới
                 initCardTilt();
 
-                // Cuộn mượt mà về đầu danh mục sách
-                const stageTop = bookStage.getBoundingClientRect().top + window.scrollY - 80;
-                window.scrollTo({ top: stageTop, behavior: 'smooth' });
+                // Cuộn mượt về đầu danh mục nếu người dùng đang ở quá xa
+                const stageTop = bookStage.getBoundingClientRect().top + window.scrollY - 70;
+                if (window.scrollY > stageTop + 80) {
+                    window.scrollTo({ top: stageTop, behavior: 'smooth' });
+                }
 
+                // Hoàn tất hiệu ứng mở trang (440ms)
                 setTimeout(() => {
                     grid.classList.remove(inClass);
                     bookStage.classList.remove('is-flipping');
+                    bookStage.style.minHeight = '';
                     isFlipping = false;
-                }, 480);
-            }, 300);
+                }, 440);
+            }, 360);
 
         } catch (err) {
             window.location.href = url;
